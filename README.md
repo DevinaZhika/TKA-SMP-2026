@@ -395,9 +395,6 @@
                     <input type="password" id="input-teacher-pwd" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm text-center font-mono" placeholder="Password Guru" required>
                 </div>
                 <p id="error-pwd-msg" class="text-vibrant-rose text-xs text-center font-semibold hidden"><i class="fa-solid fa-circle-exclamation"></i> Password salah, coba lagi!</p>
-                <div class="p-2.5 bg-slate-50 border rounded-xl text-[10px] text-slate-500 text-center">
-                    Password standar guru: <strong class="font-mono bg-white px-1 py-0.5 rounded border">adminTKA2026</strong>
-                </div>
                 <button type="submit" class="w-full py-2.5 bg-brand-950 hover:bg-slate-900 text-white font-semibold rounded-xl text-sm transition-all duration-150">
                     Masuk ke Dashboard
                 </button>
@@ -738,26 +735,7 @@
         ];
 
         // INITIAL MOCK DB DATA
-        const MOCK_PARTICIPANTS = [
-            {
-                nama: "Rian Aditya", kelas: "9A", absen: "12", 
-                tanggal: "2026-07-16", jamMulai: "08:00", jamSelesai: "09:45", durasi: "1 jam 45 menit",
-                benar: 4, salah: 1, skor: 80,
-                jawabanSiswa: { 1: "D", 2: "B", 3: "A", 4: "A", 5: "A" }
-            },
-            {
-                nama: "Siti Maulida", kelas: "9B", absen: "30", 
-                tanggal: "2026-07-16", jamMulai: "08:15", jamSelesai: "09:30", durasi: "1 jam 15 menit",
-                benar: 5, salah: 0, skor: 100,
-                jawabanSiswa: { 1: "D", 2: "B", 3: "C", 4: "A", 5: "A" }
-            },
-            {
-                nama: "Hendra Wijaya", kelas: "9C", absen: "7", 
-                tanggal: "2026-07-16", jamMulai: "08:05", jamSelesai: "09:55", durasi: "1 jam 50 menit",
-                benar: 3, salah: 2, skor: 60,
-                jawabanSiswa: { 1: "C", 2: "B", 3: "C", 4: "B", 5: "C" }
-            }
-        ];
+        const MOCK_PARTICIPANTS = [];
 
         // GLOBAL APPLICATION STATE
         let questions = [];
