@@ -3,15 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CBT TKA SMP</title>
+    <title>TKA Adventure - CBT System</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts Inter & Plus Jakarta Sans -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts Nunito, Poppins & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- GSAP CDN for smooth animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -19,41 +23,44 @@
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
-                        heading: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Poppins', 'sans-serif'],
+                        game: ['Nunito', 'sans-serif'],
                     },
                     colors: {
                         brand: {
-                            50: '#f0f3ff',
-                            100: '#e1e7fe',
-                            200: '#cbd5fe',
-                            300: '#a5b4fc',
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5', // Indigo Accent
-                            700: '#4338ca', 
-                            800: '#3730a3',
-                            950: '#0f172a', // Deep Slate Dark
+                            50: '#f0f4ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6', 
+                            600: '#2563eb', 
+                            700: '#1d4ed8', 
+                            800: '#1e40af',
+                            950: '#172554',
                         },
                         vibrant: {
-                            cyan: '#06b6d4',
-                            emerald: '#10b981',
-                            rose: '#f43f5e',
-                            amber: '#f59e0b'
+                            emerald: '#059669', 
+                            amber: '#f59e0b',   
+                            rose: '#e11d48',
+                            cyan: '#06b6d4'
                         }
                     },
                     boxShadow: {
-                        'glow': '0 0 15px -3px rgba(99, 102, 241, 0.3)',
-                        'premium': '0 20px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.05)',
+                        'premium': '0 10px 25px -5px rgba(30, 64, 175, 0.08), 0 8px 10px -6px rgba(30, 64, 175, 0.08)',
+                        'glow': '0 0 15px rgba(59, 130, 246, 0.35)',
+                        'glow-success': '0 0 15px rgba(16, 185, 129, 0.35)'
                     }
                 }
             }
         }
     </script>
+
     <style>
-        /* Modern Scrollbar */
+        /* Modern Scrollbar styling */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
             background: #f1f5f9;
@@ -63,70 +70,153 @@
             border-radius: 99px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #a5b4fc;
+            background: #93c5fd;
         }
-        
-        /* Interactive Highlight styles (Pure yellow highlight, no brackets or margins) */
+
+        /* Pure flat yellow highlighter (no padding, no curves, no margins) */
         .highlighted-text {
-            background-color: #fef08a !important; /* Tailwind yellow-200 */
-            color: #1e1b4b !important;
-            padding: 0px 2px !important;
-            border-radius: 0px !important;
+            background-color: rgba(250, 204, 21, 0.65) !important; 
+            color: #1e293b !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
             box-shadow: none !important;
             border: none !important;
         }
-        
+
+        /* Active Option Box (Vibrant green feedback upon selection) */
+        .option-card input[type="radio"]:checked + label {
+            border-color: #10b981 !important; /* Tailwind emerald-500 */
+            background-color: #ecfdf5 !important; /* Tailwind emerald-50 */
+            color: #065f46 !important; /* Tailwind emerald-800 */
+            box-shadow: 0 4px 15px -1px rgba(16, 185, 129, 0.25) !important;
+            transform: scale(1.02);
+            transition: all 0.2s ease;
+        }
+        .option-card input[type="radio"]:checked + label span:first-child {
+            background-color: #10b981 !important;
+            color: #ffffff !important;
+            border-color: #10b981 !important;
+        }
+
         /* Reading Ruler Focus Overlay */
         .ruler-focus-active .reading-stimulus p:not(.focused-line) {
             opacity: 0.15;
-            filter: blur(1.5px);
+            filter: blur(1px);
             transition: all 0.25s ease;
         }
         .reading-stimulus p {
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
             cursor: pointer;
             border-left: 3px solid transparent;
             padding-left: 8px;
         }
         .reading-stimulus p:hover {
             background-color: #f8fafc;
-            border-left-color: #cbd5fe;
+            border-left-color: #bfdbfe;
         }
         .focused-line {
-            border-left-color: #6366f1 !important;
-            background-color: #f0f3ff !important;
+            border-left-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
             font-weight: 500;
-            color: #1e1b4b !important;
+            color: #1e3a8a !important;
             opacity: 1 !important;
             filter: none !important;
-            transform: scale(1.01);
         }
 
-        /* Option box unchecked custom focus styling */
-        .option-card input[type="radio"]:checked + label {
-            border-color: #6366f1;
-            background-color: #f0f3ff;
-            color: #3730a3;
-            font-weight: 600;
-            box-shadow: 0 4px 12px -1px rgba(99, 102, 241, 0.15);
+        /* Gamified Layout Animations */
+        .game-btn {
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s;
+        }
+        .game-btn:hover {
+            transform: scale(1.03);
+        }
+        .game-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Dynamic Clouds Move Background */
+        @keyframes moveClouds {
+            0% { transform: translateX(-10%); }
+            50% { transform: translateX(10%); }
+            100% { transform: translateX(-10%); }
+        }
+        .animated-clouds {
+            animation: moveClouds 35s ease-in-out infinite;
+        }
+
+        /* Slide Transition Engine */
+        .slide-fade-in {
+            animation: slideFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideFade {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Confetti particle setup */
+        .confetti-particle {
+            position: absolute;
+            z-index: 100;
+            animation: confettiFall 4s linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between overflow-x-hidden">
 
-    <!-- HEADER BAR -->
-    <header class="bg-gradient-to-r from-brand-950 via-indigo-950 to-slate-900 border-b border-indigo-900 sticky top-0 z-40 shadow-md">
+    <div class="fixed inset-0 -z-50 overflow-hidden pointer-events-none select-none">
+        <!-- Sky Gradient -->
+        <div class="absolute inset-0 bg-gradient-to-b from-sky-300 via-blue-100 to-indigo-50"></div>
+        
+        <!-- Sun Glow -->
+        <div class="absolute top-12 right-12 w-48 h-48 rounded-full bg-yellow-200 opacity-20 blur-3xl animate-pulse"></div>
+        
+        <!-- Cloud Layer 1 -->
+        <div class="absolute inset-0 animated-clouds opacity-40">
+            <svg class="absolute top-16 left-[5%] w-32 h-12 fill-white opacity-85" viewBox="0 0 100 40"><path d="M10 30 Q15 15 30 20 Q45 10 60 25 Q75 15 90 30 Z"/></svg>
+            <svg class="absolute top-36 left-[55%] w-48 h-16 fill-white opacity-90" viewBox="0 0 100 40"><path d="M10 30 Q15 15 30 20 Q45 10 60 25 Q75 15 90 30 Z"/></svg>
+        </div>
+
+        <!-- Landscape Backdrop Vectors (Hills) -->
+        <svg class="absolute bottom-0 left-0 w-full h-[35vh] fill-emerald-100/30 opacity-70" viewBox="0 0 1440 320" preserveAspectRatio="none">
+            <path d="M0,224L120,202.7C240,181,480,139,720,144C960,149,1200,203,1320,229.3L1440,256L1440,320L0,320Z"></path>
+        </svg>
+        <svg class="absolute bottom-0 left-0 w-full h-[22vh] fill-emerald-200/40 opacity-80" viewBox="0 0 1440 320" preserveAspectRatio="none">
+            <path d="M0,256L120,240C240,224,480,192,720,202.7C960,213,1200,267,1320,293.3L1440,320L1440,320L0,320Z"></path>
+        </svg>
+
+        <!-- Dynamic Math/Science Floating Vector Icons -->
+        <div class="absolute top-1/4 left-10 w-12 h-12 opacity-15 text-brand-800 rotate-12 animate-bounce"><i class="fa-solid fa-square-root-variable text-5xl"></i></div>
+        <div class="absolute top-1/3 right-16 w-12 h-12 opacity-15 text-brand-800 -rotate-12 animate-bounce"><i class="fa-solid fa-atom text-5xl"></i></div>
+        <div class="absolute bottom-1/3 left-1/4 w-12 h-12 opacity-10 text-brand-800 rotate-45"><i class="fa-solid fa-calculator text-5xl"></i></div>
+    </div>
+
+    <header class="bg-gradient-to-r from-brand-950 via-blue-950 to-slate-900 border-b border-brand-800 sticky top-0 z-40 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="bg-gradient-to-tr from-brand-500 to-vibrant-cyan text-white p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <i class="fa-solid fa-graduation-cap text-lg"></i>
+                <div class="bg-gradient-to-tr from-brand-500 to-cyan-400 text-white p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-trophy text-lg"></i>
                 </div>
                 <div>
-                    <h1 class="font-heading font-extrabold text-sm sm:text-base text-white tracking-wide">CBT TKA SMP</h1>
+                    <h1 class="font-heading font-extrabold text-sm sm:text-base text-white tracking-wide">TKA ADVENTURE</h1>
                 </div>
             </div>
             
             <div class="flex items-center gap-2">
+                <!-- AUDIO CONTROLLER TOGGLE -->
+                <button onclick="toggleAudio()" id="btn-sound-toggle" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-brand-200 hover:text-white hover:bg-white/10 flex items-center gap-1.5 transition mr-2">
+                    <i id="sound-icon" class="fa-solid fa-volume-high"></i> <span id="sound-text">Sound ON</span>
+                </button>
+
                 <button onclick="switchView('student-gate')" id="tab-student" class="px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 bg-brand-600 text-white shadow-md flex items-center gap-1.5">
                     <i class="fa-solid fa-user-pen"></i> <span>Siswa</span>
                 </button>
@@ -137,31 +227,140 @@
         </div>
     </header>
 
-    <!-- MAIN CONTENT -->
-    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 relative">
 
-        <!-- STUDENT LOG GATEWAY -->
-        <div id="view-student-gate" class="max-w-md mx-auto my-8 bg-white rounded-3xl border border-indigo-50 p-6 sm:p-8 shadow-premium transition-all">
-            <div class="text-center mb-8">
-                <div class="inline-flex p-4 bg-brand-50 text-brand-600 rounded-3xl mb-4 shadow-inner">
-                    <i class="fa-solid fa-brain text-4xl"></i>
+        <!-- MICRO-LOADING SYSTEM OVERLAY -->
+        <div id="mission-loader" class="hidden absolute inset-0 z-50 bg-slate-50/90 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
+            <div class="w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="font-heading font-bold text-sm text-brand-950 uppercase tracking-widest animate-pulse">Loading Next Mission...</p>
+        </div>
+
+        <!-- MOTIVATIONAL TOAST MILESTONES -->
+        <div id="motivation-popup" class="hidden fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-brand-600 border border-brand-400 text-white font-heading font-black px-6 py-4 rounded-3xl shadow-glow-success scale-90 transition-transform duration-300 flex items-center gap-3">
+            <span class="text-2xl" id="motivation-emoji">🎉</span>
+            <div>
+                <h4 class="text-sm tracking-wide" id="motivation-title">Hebat!</h4>
+                <p class="text-xs text-brand-100 font-medium font-sans" id="motivation-desc">Kamu menyelesaikan tantangan.</p>
+            </div>
+        </div>
+
+        <!-- STUDENT LOG GATEWAY (QUEST LOBBY) -->
+        <div id="view-student-gate" class="max-w-md mx-auto my-8 bg-white/70 backdrop-blur-md rounded-3xl border border-blue-50 p-6 sm:p-8 shadow-premium slide-fade-in relative overflow-hidden">
+            <!-- Game Adventure Visual Elements -->
+            <div class="absolute -top-12 -left-12 w-32 h-32 bg-blue-100/50 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-12 -right-12 w-32 h-32 bg-indigo-100/50 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div class="text-center mb-6 z-10 relative">
+                <!-- CUSTOM FLAT ILLUSTRATION: ADVENTURER AT THE GATE -->
+                <div class="inline-flex mb-4">
+                    <svg class="w-64 h-52 mx-auto drop-shadow-xl" viewBox="0 0 300 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- BACKGROUND PORTAL ARCH/GATEWAY -->
+                        <!-- Left Stone Pillar -->
+                        <rect x="40" y="80" width="24" height="140" rx="6" fill="#4B5563" />
+                        <rect x="36" y="210" width="32" height="12" rx="3" fill="#1F2937" />
+                        <!-- Right Stone Pillar -->
+                        <rect x="236" y="80" width="24" height="140" rx="6" fill="#4B5563" />
+                        <rect x="232" y="210" width="32" height="12" rx="3" fill="#1F2937" />
+                        <!-- Arch Gate Arc -->
+                        <path d="M40 90 Q150 10 260 90" stroke="#374151" stroke-width="14" fill="none" stroke-linecap="round" />
+                        <!-- Glowing Blue Gate Banner Base -->
+                        <path d="M48 85 Q150 18 252 85" stroke="#1D4ED8" stroke-width="24" fill="none" stroke-linecap="round" />
+                        <!-- Text on Arch Banner -->
+                        <text x="150" y="58" font-family="'Poppins', 'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="12" fill="#FFFFFF" text-anchor="middle" letter-spacing="1.5">TKA ADVENTURE</text>
+
+                        <!-- CHARACTER DETAILED FLAT SHAPE -->
+                        <!-- Backpack showing behind shoulder sides -->
+                        <rect x="132" y="128" width="36" height="50" rx="8" fill="#D97706" />
+                        <circle cx="150" cy="115" r="4" fill="#4B5563" /> 
+
+                        <!-- Boy Body Base & Green Explorer Uniform -->
+                        <path d="M128 135 H172 V195 H128 Z" fill="#059669" />
+                        <!-- Orange Backpack Straps -->
+                        <path d="M134 135 V195 M166 135 V195" stroke="#B45309" stroke-width="4.5" />
+                        <!-- Inner Cream T-shirt collar -->
+                        <path d="M142 135 L150 145 L158 135" stroke="#FDBA74" stroke-width="3" fill="none" stroke-linecap="round" />
+
+                        <!-- Dark Grey Pants & Walking Boots -->
+                        <rect x="134" y="195" width="12" height="22" fill="#374151" />
+                        <rect x="154" y="195" width="12" height="22" fill="#374151" />
+                        <path d="M130 215 H146 V223 H130 Z" fill="#111827" />
+                        <path d="M154 215 H170 V223 H154 Z" fill="#111827" />
+
+                        <!-- Face & Cute Round Hair -->
+                        <circle cx="150" cy="116" r="18" fill="#FDBA74" />
+                        <path d="M132 116 C132 102 168 102 168 116 Z" fill="#451A03" /> <!-- Dark hair -->
+                        
+                        <!-- Flat Explorer Hat with Yellow Ribbon -->
+                        <path d="M128 102 C128 84, 172 84, 172 102 Z" fill="#92400E" /> <!-- Dome -->
+                        <ellipse cx="150" cy="102" rx="30" ry="6" fill="#78350F" /> <!-- Brim -->
+                        <rect x="136" y="96" width="28" height="4" fill="#F59E0B" /> <!-- Ribbon -->
+
+                        <!-- Minimalist Flat Eyes & Warm Smile -->
+                        <circle cx="144" cy="115" r="2" fill="#111827" />
+                        <circle cx="156" cy="115" r="2" fill="#111827" />
+                        <path d="M146 122 Q150 126 154 122" stroke="#111827" stroke-width="2" fill="none" stroke-linecap="round" />
+
+                        <!-- Left Hand holding Red Math Book -->
+                        <path d="M128 142 Q105 152 112 175" stroke="#FDBA74" stroke-width="8" stroke-linecap="round" fill="none" />
+                        <!-- Red Book Graphics with Spine line -->
+                        <rect x="94" y="160" width="24" height="32" rx="3" fill="#E11D48" transform="rotate(-15 106 176)" />
+                        <rect x="99" y="162" width="19" height="28" fill="#FFFFFF" transform="rotate(-15 106 176)" />
+                        <line x1="102" y1="168" x2="114" y2="168" stroke="#E2E8F0" stroke-width="2.5" transform="rotate(-15 106 176)" />
+                        <line x1="102" y1="174" x2="114" y2="174" stroke="#E2E8F0" stroke-width="2.5" transform="rotate(-15 106 176)" />
+                        <rect x="94" y="160" width="4" height="32" fill="#9F1239" transform="rotate(-15 106 176)" />
+
+                        <!-- Right Hand holding Silver Mathematical Compass (Jangka) -->
+                        <path d="M172 142 Q195 152 188 175" stroke="#FDBA74" stroke-width="8" stroke-linecap="round" fill="none" />
+                        <!-- Mathematical Divider / Compass Instrument -->
+                        <circle cx="192" cy="165" r="3.5" fill="#64748B" /> <!-- Joint -->
+                        <line x1="192" y1="165" x2="183" y2="190" stroke="#94A3B8" stroke-width="3.5" stroke-linecap="round" /> <!-- Leg 1 -->
+                        <line x1="192" y1="165" x2="201" y2="190" stroke="#94A3B8" stroke-width="3.5" stroke-linecap="round" /> <!-- Leg 2 with Blue pencil -->
+                        <line x1="183" y1="190" x2="181" y2="195" stroke="#475569" stroke-width="1.5" /> <!-- Metal Tip -->
+                        <line x1="201" y1="190" x2="204" y2="195" stroke="#2563EB" stroke-width="3.5" stroke-linecap="round" /> <!-- Pencil body -->
+                        <polygon points="204,195 205,198 202,197" fill="#000000" /> <!-- Pencil tip graphite -->
+
+                        <!-- GAME PARTICLE FLAMBOYANT SPARKLES -->
+                        <path d="M85 125 L87 128 L92 130 L87 132 L85 137 L83 132 L78 130 L83 128 Z" fill="#F59E0B" /> <!-- Gold Spark -->
+                        <path d="M215 110 L217 113 L222 115 L217 117 L215 122 L213 117 L208 115 L213 113 Z" fill="#06B6D4" /> <!-- Cyan Spark -->
+                        <path d="M70 170 A 50 50 0 0 1 100 200" stroke="#BFDBFE" stroke-width="2.5" stroke-dasharray="4,4" fill="none" /> <!-- Blueprint Math Arc -->
+                    </svg>
                 </div>
-                <h2 class="font-heading font-extrabold text-2xl text-brand-950">Tes Kemampuan Akademik</h2>
+                <h2 class="font-heading font-extrabold text-2xl text-brand-950 font-game">🏆 TKA Adventure</h2>
+                <p class="text-slate-500 text-sm mt-1 leading-relaxed">Selesaikan seluruh tantangan untuk mencapai garis akhir.</p>
             </div>
 
-            <form id="form-login-siswa" onsubmit="startExam(event)" class="space-y-5">
+            <!-- Path Graphics on Lobby -->
+            <div class="h-16 w-full relative mb-6 overflow-hidden bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center">
+                <!-- Stars and Space Background instead of "Cloud Text Placeholder" -->
+                <div class="absolute inset-0 opacity-20 bg-gradient-to-r from-blue-500 to-indigo-600 animate-pulse"></div>
+                <div class="absolute left-6 text-brand-500 animate-pulse">
+                    <i class="fa-solid fa-rocket text-xl rotate-45"></i>
+                </div>
+                
+                <!-- Adventure Map Line -->
+                <div class="w-4/5 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full relative flex justify-between items-center">
+                    <div class="w-4 h-4 rounded-full bg-brand-600 border-4 border-white shadow animate-ping"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-300 border-2 border-white"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-300 border-2 border-white"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-300 border-2 border-white"></div>
+                    <div class="w-6 h-6 rounded-full bg-slate-800 border-2 border-white flex items-center justify-center shadow"><i class="fa-solid fa-flag-checkered text-[10px] text-white"></i></div>
+                </div>
+            </div>
+
+            <form id="form-login-siswa" onsubmit="startExam(event)" class="space-y-4 z-10 relative">
                 <div>
-                    <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5 tracking-wider" for="input-nama">Nama Lengkap</label>
+                    <label class="block text-xs font-bold uppercase text-slate-400 mb-1 tracking-wider" for="input-nama">Nama Lengkap</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                             <i class="fa-solid fa-user text-sm"></i>
                         </span>
-                        <input type="text" id="input-nama" required class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm font-medium transition" placeholder="Contoh: Andi Wijaya">
+                        <input type="text" id="input-nama" required class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm font-medium transition bg-white/80" placeholder="Contoh: Andi Wijaya">
                     </div>
                 </div>
+                
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5 tracking-wider" for="input-kelas">Kelas</label>
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1 tracking-wider" for="input-kelas">Kelas</label>
                         <select id="input-kelas" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm font-medium bg-white transition">
                             <option value="">Pilih...</option>
                             <option value="9A">Kelas 9A</option>
@@ -175,75 +374,93 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5 tracking-wider" for="input-absen">Nomor Absen</label>
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1 tracking-wider" for="input-absen">Nomor Absen</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                                 <i class="fa-solid fa-hashtag text-sm"></i>
                             </span>
-                            <input type="number" id="input-absen" min="1" max="45" required class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm font-medium transition" placeholder="1">
+                            <input type="number" id="input-absen" min="1" max="45" required class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm font-medium transition bg-white/80" placeholder="1">
                         </div>
                     </div>
                 </div>
 
-                <div class="p-4 bg-brand-50/50 border border-indigo-100 rounded-2xl text-xs text-brand-900 space-y-1.5">
+                <div class="p-4 bg-brand-50 border border-brand-100 rounded-2xl text-xs text-brand-900 space-y-1.5">
                     <div class="font-bold flex items-center gap-2 text-brand-800">
                         <i class="fa-solid fa-circle-info text-brand-600"></i> Petunjuk:
                     </div>
                     <p class="leading-relaxed text-slate-600">
-                        Gunakan tombol bantuan <strong class="text-brand-700">Stabilo</strong> dan <strong class="text-brand-700">Mistar Fokus</strong> di atas kertas soal digital untuk mempermudah teknik membaca cepat (*skimming & scanning*).
+                        Gunakan tombol bantuan <strong class="text-brand-700">Stabilo</strong> dan <strong class="text-brand-700">Mistar Fokus</strong> di atas teks bacaan digital untuk mempermudah teknik membaca cepat (*skimming & scanning*).
                     </p>
                 </div>
 
-                <button type="submit" class="w-full py-3.5 px-4 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm">
-                    Mulai Ujian <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                <button type="submit" class="game-btn w-full py-3.5 px-4 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-brand-600/20 flex items-center justify-center gap-2 text-sm">
+                    🚀 Mulai Petualangan
                 </button>
             </form>
         </div>
 
-        <!-- CBT STUDENT EXAM VIEW (SPLIT SCREEN LAYOUT) -->
-        <div id="view-student-exam" class="hidden flex flex-col gap-4">
+        <div id="view-student-exam" class="hidden flex flex-col gap-4 slide-fade-in">
             
-            <!-- Top Bar Panel: Timer, Profil & Toolbar -->
-            <div class="bg-white border border-slate-150 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="bg-indigo-50/70 border border-indigo-100 px-4 py-2 rounded-xl text-xs">
-                        <span class="text-indigo-400 block font-bold uppercase text-[9px] tracking-wider">Siswa Terdaftar</span>
-                        <strong id="display-student-name" class="text-brand-950 text-sm">Siswa</strong>
-                        <span class="text-indigo-600 ml-1 font-semibold">(Kelas <span id="display-student-class">9A</span> / <span id="display-student-absen">01</span>)</span>
+            <!-- Top Bar Panel: Timer, Progress & Toolbar -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col gap-4">
+                
+                <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="bg-brand-50 border border-brand-100 px-4 py-2 rounded-xl text-xs w-full sm:w-auto">
+                            <span class="text-brand-400 block font-bold uppercase text-[9px] tracking-wider">Petualang Terdaftar</span>
+                            <strong id="display-student-name" class="text-brand-950 text-sm">Siswa</strong>
+                            <span class="text-brand-600 ml-1 font-semibold">(Kelas <span id="display-student-class">9A</span> / Absen <span id="display-student-absen">01</span>)</span>
+                        </div>
+
+                        <!-- Cosmetic Badge Visualizer -->
+                        <div class="bg-indigo-950 text-white px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 font-bold shadow-sm">
+                            <span id="display-badge-icon">⭐</span> <span id="display-badge-text">Explorer</span>
+                        </div>
+                    </div>
+
+                    <!-- PROGRESS BAR AND PERCENTAGE -->
+                    <div class="flex flex-col w-full sm:w-72">
+                        <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase mb-1">
+                            <span id="label-quest-progress">Level Progress</span>
+                            <span id="percent-quest-progress" class="text-brand-600 font-extrabold">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-3 border overflow-hidden">
+                            <div id="quest-progress-bar" class="bg-gradient-to-r from-brand-500 to-emerald-500 h-full w-0 transition-all duration-500"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="text-right">
+                            <span class="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">⏳ Sisa Waktu</span>
+                            <div id="exam-timer" class="text-base font-mono font-black text-vibrant-rose animate-pulse">02:00:00</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- TOOLBAR ALAT BANTU LITERASI -->
+                <!-- ASSISTIVE READ TOOLBAR -->
                 <div class="flex flex-wrap items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
                     <span class="text-[10px] font-bold text-slate-400 px-2 uppercase tracking-wide">Bantuan Membaca Cepat:</span>
-                    <button onclick="toggleHighlighter()" id="btn-highlighter" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border text-slate-700 hover:bg-indigo-50 flex items-center gap-1.5 transition">
-                        <i class="fa-solid fa-marker text-brand-500"></i> Stabilo Teks
+                    <button onclick="toggleHighlighter()" id="btn-highlighter" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border text-slate-700 hover:bg-brand-50 flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-marker text-brand-500"></i> Stabilo Teks (Kuning)
                     </button>
-                    <button onclick="toggleReadingRuler()" id="btn-ruler" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border text-slate-700 hover:bg-indigo-50 flex items-center gap-1.5 transition">
+                    <button onclick="toggleReadingRuler()" id="btn-ruler" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border text-slate-700 hover:bg-brand-50 flex items-center gap-1.5 transition">
                         <i class="fa-solid fa-grip-lines text-brand-500"></i> Mistar Fokus
                     </button>
-                    <button onclick="toggleScratchpad()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border text-slate-700 hover:bg-indigo-50 flex items-center gap-1.5 transition">
+                    <button onclick="toggleScratchpad()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border text-slate-700 hover:bg-brand-50 flex items-center gap-1.5 transition">
                         <i class="fa-solid fa-feather-pointed text-brand-500"></i> Papan Coretan
                     </button>
                 </div>
-
-                <div class="flex items-center gap-3">
-                    <div class="text-right">
-                        <span class="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Sisa Waktu</span>
-                        <div id="exam-timer" class="text-base font-mono font-bold text-vibrant-rose animate-pulse">02:00:00</div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Main Workspace: Split Screen -->
+            <!-- Workspace: Split Screen layout matching standard ANBK/PISA -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
                 
-                <!-- STIMULUS PANEL (Kiri: Berisi Teks Bacaan Panjang, Tabel, Grafik) -->
-                <div id="panel-stimulus" class="lg:col-span-6 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between max-h-[600px] overflow-y-auto">
+                <!-- STIMULUS PANEL (Left Side: Paragraf Bacaan) -->
+                <div id="panel-stimulus" class="lg:col-span-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between max-h-[600px] overflow-y-auto">
                     <div>
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-                            <span class="text-xs font-bold text-brand-500 uppercase tracking-wider"><i class="fa-solid fa-file-invoice"></i> Teks Stimulus Kasus</span>
-                            <span class="text-[10px] bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full font-bold">Standard TKA / HOTS</span>
+                            <span class="text-xs font-bold text-brand-600 uppercase tracking-wider"><i class="fa-solid fa-file-invoice"></i> Dokumen Stimulus Kasus</span>
+                            <span class="text-[10px] bg-brand-50 text-brand-700 px-2.5 py-1 rounded-full font-bold">Quest Challenge</span>
                         </div>
                         
                         <!-- Content Teks Stimulus -->
@@ -253,26 +470,27 @@
                     </div>
                 </div>
 
-                <!-- QUESTION & OPTIONS PANEL (Kanan: Butir pertanyaan & Opsi Jawaban) -->
-                <div id="panel-soal" class="lg:col-span-6 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between min-h-[450px]">
+                <!-- QUESTION & OPTIONS PANEL (Right Side: Quest and Choices) -->
+                <div id="panel-soal" class="lg:col-span-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between min-h-[450px]">
                     <div>
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-5">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
                             <span class="px-3 py-1 bg-brand-50 text-brand-700 text-xs font-bold rounded-lg" id="display-mapel">
-                                Matematika
+                                Pelajaran
                             </span>
                             <span class="text-xs font-semibold text-slate-500">
-                                Soal <strong id="current-question-num" class="text-brand-600">1</strong> dari <span id="total-questions-num">5</span>
+                                Misi <strong id="current-question-num" class="text-brand-600">1</strong> dari <span id="total-questions-num">5</span>
                             </span>
                         </div>
 
-                        <!-- Question Text (No Yellow Highlight) -->
-                        <div class="space-y-5">
+                        <!-- Level Quest / Question Text -->
+                        <div class="space-y-4">
+                            <h3 class="text-xs uppercase font-extrabold text-slate-400 tracking-wider" id="label-quest-title">Level Challenge</h3>
                             <p id="display-soal-text" class="text-brand-950 font-bold text-sm sm:text-base leading-relaxed">
                                 Loading soal...
                             </p>
 
-                            <!-- Radio Options Cards Wrapper -->
-                            <div id="display-opsi-container" class="grid grid-cols-1 gap-3">
+                            <!-- Choices -->
+                            <div id="display-opsi-container" class="grid grid-cols-1 gap-2.5">
                                 <!-- Rendered dynamically -->
                             </div>
                         </div>
@@ -280,20 +498,20 @@
 
                     <!-- Action Buttons -->
                     <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
-                        <button id="btn-prev-question" onclick="goToQuestion(currentQuestionIndex - 1)" class="px-3 sm:px-4 py-2.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center gap-1.5 transition">
+                        <button id="btn-prev-question" onclick="goToQuestion(currentQuestionIndex - 1)" class="game-btn px-3 sm:px-4 py-2.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center gap-1.5 transition">
                             <i class="fa-solid fa-chevron-left"></i> Sebelumnya
                         </button>
                         
                         <!-- Ragu-ragu Toggle Button -->
-                        <button id="btn-doubtful-toggle" onclick="toggleDoubtful()" class="px-4 py-2.5 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100">
+                        <button id="btn-doubtful-toggle" onclick="toggleDoubtful()" class="game-btn px-4 py-2.5 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100">
                             <i class="fa-regular fa-square"></i> Ragu-Ragu
                         </button>
 
-                        <button id="btn-next-question" onclick="goToQuestion(currentQuestionIndex + 1)" class="px-3 sm:px-4 py-2.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl flex items-center gap-1.5 transition shadow">
+                        <button id="btn-next-question" onclick="goToQuestion(currentQuestionIndex + 1)" class="game-btn px-3 sm:px-4 py-2.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl flex items-center gap-1.5 transition shadow">
                             Selanjutnya <i class="fa-solid fa-chevron-right"></i>
                         </button>
 
-                        <button id="btn-finish-exam" onclick="confirmEndExam()" class="hidden px-5 sm:px-6 py-2.5 text-xs font-bold text-white bg-vibrant-emerald hover:bg-emerald-600 rounded-xl flex items-center gap-1.5 transition shadow-md">
+                        <button id="btn-finish-exam" onclick="confirmEndExam()" class="game-btn hidden px-5 sm:px-6 py-2.5 text-xs font-bold text-white bg-vibrant-emerald hover:bg-emerald-600 rounded-xl flex items-center gap-1.5 transition shadow-md">
                             <i class="fa-solid fa-paper-plane"></i> Selesai
                         </button>
                     </div>
@@ -301,51 +519,50 @@
 
             </div>
 
-            <!-- Bottom Indicator Navigation Panel -->
+            <!-- Bottom Circular Level Badges Panel (Game Map) -->
             <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-                    <h4 class="font-heading font-bold text-xs text-brand-950 uppercase tracking-widest">Navigasi Lembar Jawab Cepat</h4>
+                    <h4 class="font-heading font-bold text-xs text-brand-950 uppercase tracking-widest">Peta Level Petualangan</h4>
                     <div class="flex flex-wrap items-center gap-4 text-[10px] font-bold uppercase tracking-wider">
-                        <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-slate-100 border border-slate-200 inline-block"></span> Belum Terjawab</div>
-                        <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-emerald-600 inline-block"></span> Sudah Terjawab</div>
+                        <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-slate-200 border border-slate-300 inline-block"></span> Belum Dibuka</div>
+                        <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-emerald-600 inline-block"></span> Sudah Dijawab</div>
                         <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-amber-500 inline-block"></span> Ragu-Ragu</div>
                     </div>
                 </div>
-                <div id="student-grid-indicators" class="flex flex-wrap gap-2">
-                    <!-- Dynamic generated grid -->
+                <!-- Circles mapping grid -->
+                <div id="student-grid-indicators" class="flex flex-wrap gap-3">
+                    <!-- Dynamic generated circles -->
                 </div>
             </div>
 
         </div>
 
-        <!-- INTERACTIVE SCRATCHPAD FLOATING PANEL -->
-        <div id="scratchpad-panel" class="hidden fixed right-4 bottom-4 z-50 bg-white border border-brand-100 w-80 rounded-2xl shadow-2xl p-4 space-y-3">
+        <div id="scratchpad-panel" class="hidden fixed right-4 bottom-4 z-50 bg-white border border-brand-100 w-80 rounded-2xl shadow-2xl p-4 space-y-3 slide-fade-in">
             <div class="flex items-center justify-between border-b pb-2">
                 <span class="text-xs font-bold text-brand-950 uppercase"><i class="fa-solid fa-feather-pointed text-brand-500"></i> Papan Coretan Digital</span>
                 <button onclick="toggleScratchpad()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <!-- Simple Memo pad -->
             <div>
-                <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Coretan / Catatan Membaca</label>
-                <textarea id="scratchpad-text" rows="8" class="w-full text-xs p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Tuliskan analisis hitungan atau rangkuman data bacaan Anda di sini agar tidak lupa..."></textarea>
+                <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Coretan Analisis Mandiri</label>
+                <textarea id="scratchpad-text" rows="8" class="w-full text-xs p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Tuliskan analisis hitungan atau rangkuman data bacaan Anda di sini..."></textarea>
             </div>
         </div>
 
         <!-- STUDENT SCORE SCREEN -->
-        <div id="view-student-results" class="hidden max-w-lg mx-auto bg-white border border-brand-50 rounded-3xl p-6 sm:p-8 shadow-premium transition-all">
+        <div id="view-student-results" class="hidden max-w-lg mx-auto bg-white border border-brand-50 rounded-3xl p-6 sm:p-8 shadow-premium slide-fade-in">
             <div class="text-center mb-6">
-                <div class="inline-flex p-4 bg-brand-50 text-brand-600 rounded-full mb-4 shadow-inner">
-                    <i class="fa-solid fa-square-poll-vertical text-4xl"></i>
+                <div class="inline-flex p-4 bg-emerald-50 text-vibrant-emerald rounded-full mb-4 shadow-inner">
+                    <i class="fa-solid fa-circle-check text-4xl"></i>
                 </div>
-                <h2 class="font-heading font-extrabold text-2xl text-brand-950">Ujian Telah Selesai!</h2>
-                <p class="text-slate-500 text-xs mt-1">Hasil ujian Anda telah berhasil direkam ke database utama secara aman.</p>
+                <h2 class="font-heading font-extrabold text-2xl text-brand-950">🎉 Ujian Selesai!</h2>
+                <p class="text-slate-500 text-xs mt-1">Hasil petualangan Anda telah berhasil direkam ke database utama secara aman.</p>
             </div>
 
             <!-- Identity Display Block -->
             <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 mb-6 space-y-2">
                 <div class="flex justify-between text-xs">
-                    <span class="text-slate-500">Nama Siswa</span>
+                    <span class="text-slate-500">Nama Petualang</span>
                     <strong id="res-student-name" class="text-brand-950">Andi</strong>
                 </div>
                 <div class="flex justify-between text-xs">
@@ -354,23 +571,23 @@
                 </div>
             </div>
 
-            <!-- Pure Score Board -->
-            <div class="bg-brand-50/50 border border-indigo-100 rounded-2xl p-5 text-center space-y-4 shadow-inner mb-6">
-                <p class="text-brand-800 text-xs uppercase tracking-widest font-extrabold">Hasil Ujian Kompetensi</p>
+            <!-- Score board -->
+            <div class="bg-brand-50 border border-brand-100 rounded-2xl p-5 text-center space-y-4 shadow-inner mb-6">
+                <p class="text-brand-800 text-xs uppercase tracking-widest font-extrabold">Hasil Akhir Petualangan</p>
                 
-                <div class="grid grid-cols-2 gap-4 border-b border-indigo-100 pb-4">
+                <div class="grid grid-cols-2 gap-4 border-b border-brand-100 pb-4">
                     <div>
-                        <span class="text-[11px] text-indigo-500 font-semibold uppercase">Benar</span>
+                        <span class="text-[11px] text-brand-500 font-semibold uppercase">Benar</span>
                         <div id="res-total-correct" class="text-2xl font-black text-emerald-600">0</div>
                     </div>
                     <div>
-                        <span class="text-[11px] text-indigo-500 font-semibold uppercase">Salah</span>
+                        <span class="text-[11px] text-brand-500 font-semibold uppercase">Salah</span>
                         <div id="res-total-incorrect" class="text-2xl font-black text-vibrant-rose">0</div>
                     </div>
                 </div>
 
                 <div>
-                    <span class="text-[11px] text-indigo-500 font-semibold uppercase block mb-1">Skor Akhir</span>
+                    <span class="text-[11px] text-brand-500 font-semibold uppercase block mb-1">Skor Akhir</span>
                     <div id="res-final-score" class="text-6xl font-black text-brand-600 tracking-tight">00.00</div>
                 </div>
             </div>
@@ -381,9 +598,9 @@
         </div>
 
         <!-- TEACHER AUTHENTICATION BARRIER -->
-        <div id="view-teacher-login" class="hidden max-w-sm mx-auto my-12 bg-white border border-slate-200 rounded-3xl p-6 shadow-premium">
+        <div id="view-teacher-login" class="hidden max-w-sm mx-auto my-12 bg-white border border-slate-200 rounded-3xl p-6 shadow-premium slide-fade-in">
             <div class="text-center mb-6">
-                <div class="inline-flex p-3 bg-indigo-50 text-brand-600 rounded-2xl mb-2">
+                <div class="inline-flex p-3 bg-brand-50 text-brand-600 rounded-2xl mb-2">
                     <i class="fa-solid fa-user-shield text-2xl"></i>
                 </div>
                 <h3 class="font-heading font-bold text-lg text-brand-950">Portal Keamanan Guru</h3>
@@ -395,20 +612,20 @@
                     <input type="password" id="input-teacher-pwd" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 text-sm text-center font-mono" placeholder="Password Guru" required>
                 </div>
                 <p id="error-pwd-msg" class="text-vibrant-rose text-xs text-center font-semibold hidden"><i class="fa-solid fa-circle-exclamation"></i> Password salah, coba lagi!</p>
-                <button type="submit" class="w-full py-2.5 bg-brand-950 hover:bg-slate-900 text-white font-semibold rounded-xl text-sm transition-all duration-150">
+                <button type="submit" class="game-btn w-full py-2.5 bg-brand-950 hover:bg-slate-900 text-white font-semibold rounded-xl text-sm transition-all duration-150">
                     Masuk ke Dashboard
                 </button>
             </form>
         </div>
 
         <!-- TEACHER DASHBOARD VIEW (COMPREHENSIVE) -->
-        <div id="view-teacher-dashboard" class="hidden space-y-6">
+        <div id="view-teacher-dashboard" class="hidden space-y-6 slide-fade-in">
             
             <!-- Dashboard Subheader Menu -->
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-4 gap-4">
                 <div>
                     <h2 class="font-heading font-extrabold text-xl text-brand-950">Dashboard Analisis & Monitor Guru</h2>
-                    <p class="text-slate-500 text-xs">Pantau hasil analisis butir soal, matriks jawaban, dan tingkat kesulitan soal.</p>
+                    <p class="text-slate-500 text-xs">Pantau hasil analisis butir soal, matriks jawaban, dan tingkat kesulitan soal secara profesional.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <button onclick="switchTeacherTab('tab-peserta')" id="btn-tab-peserta" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-600 text-white shadow-sm">Daftar Peserta</button>
@@ -428,21 +645,21 @@
                             <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Peserta</span>
                             <div id="dash-stat-total" class="text-2xl font-extrabold text-brand-950">0</div>
                         </div>
-                        <div class="p-2.5 bg-indigo-50 text-brand-600 rounded-xl text-lg"><i class="fa-solid fa-users"></i></div>
+                        <div class="p-2.5 bg-brand-50 text-brand-600 rounded-xl text-lg"><i class="fa-solid fa-users"></i></div>
                     </div>
                     <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm flex items-center justify-between">
                         <div>
                             <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Rata-Rata Skor</span>
                             <div id="dash-stat-avg" class="text-2xl font-extrabold text-brand-950">0.0</div>
                         </div>
-                        <div class="p-2.5 bg-blue-50 text-indigo-600 rounded-xl text-lg"><i class="fa-solid fa-chart-simple"></i></div>
+                        <div class="p-2.5 bg-blue-50 text-brand-600 rounded-xl text-lg"><i class="fa-solid fa-chart-simple"></i></div>
                     </div>
                     <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm flex items-center justify-between">
                         <div>
                             <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Skor Tertinggi</span>
-                            <div id="dash-stat-max" class="text-2xl font-extrabold text-emerald-600">0</div>
+                            <div id="dash-stat-max" class="text-2xl font-extrabold text-vibrant-emerald">0</div>
                         </div>
-                        <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl text-lg"><i class="fa-solid fa-trophy"></i></div>
+                        <div class="p-2.5 bg-emerald-50 text-vibrant-emerald rounded-xl text-lg"><i class="fa-solid fa-trophy"></i></div>
                     </div>
                 </div>
 
@@ -484,7 +701,7 @@
 
             <!-- TEACHER TAB: REKAP BUTIR SOAL -->
             <div id="subview-tab-butir" class="hidden space-y-4">
-                <div class="p-3 bg-brand-50 border border-indigo-100 rounded-xl flex items-center gap-2 text-xs text-brand-900 font-semibold">
+                <div class="p-3 bg-brand-50 border border-brand-100 rounded-xl flex items-center gap-2 text-xs text-brand-900 font-semibold">
                     <i class="fa-solid fa-circle-info text-brand-600"></i>
                     Informasi mengenai distribusi pilihan jawaban siswa (A, B, C, D) untuk mendeteksi keefektifan opsi pengecoh (*distractor analysis*).
                 </div>
@@ -536,7 +753,7 @@
                     <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
                         <div>
                             <h3 class="font-heading font-bold text-brand-950 text-sm">Matriks Lembar Jawab Seluruh Siswa</h3>
-                            <p class="text-[10px] text-slate-400 mt-0.5">Jawaban benar ditandai dengan tanda centang kecil (<span class="text-emerald-600 font-bold">✔</span>) untuk memudahkan analisis kualitatif.</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Jawaban benar ditandai dengan tanda centang kecil (<span class="text-vibrant-emerald font-bold">✔</span>) untuk memudahkan analisis kualitatif.</p>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
@@ -603,7 +820,7 @@
                     <div class="lg:col-span-8 bg-white border border-slate-200 p-5 rounded-2xl shadow-sm space-y-4">
                         <div class="flex items-center justify-between">
                             <h3 class="font-heading font-bold text-brand-950 text-sm">Daftar Soal Aktif (Database JSON)</h3>
-                            <button onclick="resetQuestionsToDefault()" class="px-3 py-1 bg-brand-50 hover:bg-brand-100 border border-indigo-100 text-brand-800 rounded-xl text-xs font-bold transition"><i class="fa-solid fa-rotate-left"></i> Reset ke Standar</button>
+                            <button onclick="resetQuestionsToDefault()" class="px-3 py-1 bg-brand-50 hover:bg-brand-100 border border-brand-100 text-brand-800 rounded-xl text-xs font-bold transition"><i class="fa-solid fa-rotate-left"></i> Reset ke Standar</button>
                         </div>
                         <div class="max-h-[500px] overflow-y-auto border border-slate-100 rounded-xl divide-y divide-slate-100">
                             <div id="editor-soal-list" class="divide-y divide-slate-100 text-xs">
@@ -628,7 +845,7 @@
 
     <!-- CUSTOM IN-APP MODAL SYSTEM -->
     <div id="custom-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm hidden">
-        <div class="bg-white rounded-3xl border border-brand-50 max-w-sm w-full p-6 shadow-2xl space-y-4">
+        <div class="bg-white rounded-3xl border border-brand-100 max-w-sm w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-start gap-3">
                 <div id="modal-icon-bg" class="p-2.5 rounded-2xl text-lg flex items-center justify-center shadow-inner">
                     <i id="modal-icon" class="fa-solid"></i>
@@ -645,7 +862,95 @@
         </div>
     </div>
 
+    <!-- JS SCRIPTS LOGIC -->
     <script>
+        // WEB AUDIO API SYNTHESIZER (No external sound files, completely client-side)
+        const GameAudio = {
+            ctx: null,
+            enabled: true,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            playClick() {
+                if (!this.enabled) return;
+                this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
+            },
+            playSlide() {
+                if (!this.enabled) return;
+                this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.type = 'triangle';
+                // Frequency sweep up
+                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(750, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            },
+            playVictory() {
+                if (!this.enabled) return;
+                this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                let now = this.ctx.currentTime;
+                // Harmonic arpeggio (C Major)
+                let notes = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+                notes.forEach((freq, idx) => {
+                    let osc = this.ctx.createOscillator();
+                    let gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+                    gain.gain.setValueAtTime(0.05, now + idx * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.4);
+                    osc.start(now + idx * 0.12);
+                    osc.stop(now + idx * 0.12 + 0.4);
+                });
+            }
+        };
+
+        // AUDIO TOGGLE SWITCH HANDLER
+        function toggleAudio() {
+            GameAudio.enabled = !GameAudio.enabled;
+            const btn = document.getElementById('btn-sound-toggle');
+            const icon = document.getElementById('sound-icon');
+            const text = document.getElementById('sound-text');
+            if (GameAudio.enabled) {
+                icon.className = "fa-solid fa-volume-high";
+                text.innerText = "Sound ON";
+                GameAudio.playClick();
+            } else {
+                icon.className = "fa-solid fa-volume-xmark";
+                text.innerText = "Sound OFF";
+            }
+        }
+    </script>
+
+    <script>
+        // GOOGLE APPS SCRIPT DATABASE ENDPOINT
+        const CONFIG = {
+            API_URL: "https://script.google.com/macros/s/AKfycbxxxxxxxxx/exec", 
+            TEACHER_PASSWORD: "adminTKA2026"
+        };
+
         // DEFAULT HOTS-BASED MATHEMATICAL LITERACY QUESTIONS
         const DEFAULT_QUESTIONS = [
             {
@@ -734,7 +1039,7 @@
             }
         ];
 
-        // INITIAL MOCK DB DATA
+        // NO PARTICIPANT INITIAL STATE
         const MOCK_PARTICIPANTS = [];
 
         // GLOBAL APPLICATION STATE
@@ -744,7 +1049,7 @@
         let examTimerInterval = null;
         let examTimeLeftInSeconds = 120 * 60; // 120 Minutes
         let answersSaved = {};
-        let doubtfulSaved = {}; // New doubtful tracker
+        let doubtfulSaved = {}; 
         let examStartTimeStr = "";
         let analysisChartInstance = null;
 
@@ -759,13 +1064,14 @@
             switchView('student-gate');
         };
 
-        function loadQuestions() {
-            const localQ = localStorage.getItem('tka_literasi_questions');
-            if (localQ) {
-                questions = JSON.parse(localQ);
-            } else {
+        // LOADING QUESTS
+        async function loadQuestions() {
+            try {
+                const response = await fetch("questions.json");
+                questions = await response.json();
+            } catch (err) {
+                console.warn("Using self-contained internal quest database.");
                 questions = [...DEFAULT_QUESTIONS];
-                localStorage.setItem('tka_literasi_questions', JSON.stringify(questions));
             }
         }
 
@@ -775,9 +1081,12 @@
                 localStorage.setItem('tka_literasi_submissions', JSON.stringify(MOCK_PARTICIPANTS));
             }
         }
+    </script>
 
+    <script>
         // NAVIGATION VIEW ENGINE
         function switchView(viewId) {
+            GameAudio.playClick();
             const views = ['student-gate', 'student-exam', 'student-results', 'teacher-login', 'teacher-dashboard'];
             views.forEach(v => {
                 const el = document.getElementById(`view-${v}`);
@@ -788,12 +1097,12 @@
             const tabStudent = document.getElementById('tab-student');
             if (tabStudent) {
                 tabStudent.className = "px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-255 " + 
-                    (viewId.startsWith('student') ? 'bg-brand-600 text-white shadow-md shadow-indigo-600/10' : 'text-brand-200 hover:text-white hover:bg-white/15');
+                    (viewId.startsWith('student') ? 'bg-brand-600 text-white shadow-md shadow-brand-500/10' : 'text-brand-200 hover:text-white hover:bg-white/15');
             }
             const tabTeacher = document.getElementById('tab-teacher');
             if (tabTeacher) {
                 tabTeacher.className = "px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-255 " + 
-                    (viewId.startsWith('teacher') ? 'bg-slate-900 text-white border border-indigo-900' : 'text-brand-200 hover:text-white hover:bg-white/15');
+                    (viewId.startsWith('teacher') ? 'bg-slate-900 text-white border border-brand-800' : 'text-brand-200 hover:text-white hover:bg-white/15');
             }
 
             const targetView = document.getElementById(`view-${viewId}`);
@@ -809,10 +1118,10 @@
             activeHighlighter = !activeHighlighter;
             const btn = document.getElementById('btn-highlighter');
             if (activeHighlighter) {
-                btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-900 flex items-center gap-1.5 transition";
+                btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-950 flex items-center gap-1.5 transition";
                 showToast("Stabilo Aktif: Blok kata/angka di teks kiri untuk menandai!");
             } else {
-                btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border text-slate-700 hover:bg-indigo-50 flex items-center gap-1.5 transition";
+                btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border text-slate-700 hover:bg-brand-50 flex items-center gap-1.5 transition";
             }
             setupTextHighlighterEvent();
         }
@@ -829,6 +1138,7 @@
                         span.appendChild(range.extractContents());
                         range.insertNode(span);
                         sel.removeAllRanges();
+                        GameAudio.playClick();
                     }
                 };
             } else {
@@ -836,17 +1146,18 @@
             }
         }
 
+        // Mistar fokus toggle
         function toggleReadingRuler() {
             activeReadingRuler = !activeReadingRuler;
             const btn = document.getElementById('btn-ruler');
             const panel = document.getElementById('panel-stimulus');
             
             if (activeReadingRuler) {
-                btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 border border-indigo-700 text-white flex items-center gap-1.5 transition shadow";
+                btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-600 border border-brand-700 text-white flex items-center gap-1.5 transition shadow";
                 panel.classList.add('ruler-focus-active');
                 showToast("Mistar Fokus Aktif: Klik baris paragraf agar pandangan terfokus!");
             } else {
-                btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border text-slate-700 hover:bg-indigo-50 flex items-center gap-1.5 transition";
+                btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border text-slate-700 hover:bg-brand-50 flex items-center gap-1.5 transition";
                 panel.classList.remove('ruler-focus-active');
                 
                 // Clear focused marks
@@ -861,6 +1172,7 @@
             const lines = panel.querySelectorAll('p');
             lines.forEach(l => l.classList.remove('focused-line'));
             element.classList.add('focused-line');
+            GameAudio.playClick();
         }
 
         // SCRATCHPAD UTILITY
@@ -869,14 +1181,14 @@
             panel.classList.toggle('hidden');
         }
 
-        // MODALS AND CUSTOM NOTIFICATIONS (NO ALERT / NO CONFIRM)
+        // CUSTOM MODALS SYSTEM (Zero default popups)
         function showModal(title, text, type, confirmText, cancelText, onConfirm, onCancel) {
             const modal = document.getElementById('custom-modal');
             const iconBg = document.getElementById('modal-icon-bg');
             const icon = document.getElementById('modal-icon');
             
             document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-body').innerText = text;
+            document.getElementById('modal-body').innerHTML = text;
 
             if (type === 'danger') {
                 iconBg.className = "p-2.5 rounded-2xl text-lg bg-rose-50 text-vibrant-rose shadow-inner";
@@ -905,11 +1217,13 @@
 
             newConfirm.addEventListener('click', () => {
                 modal.classList.add('hidden');
+                GameAudio.playClick();
                 if (onConfirm) onConfirm();
             });
 
             newCancel.addEventListener('click', () => {
                 modal.classList.add('hidden');
+                GameAudio.playClick();
                 if (onCancel) onCancel();
             });
 
@@ -919,12 +1233,14 @@
         function showToast(text) {
             const toast = document.createElement('div');
             toast.className = "fixed bottom-4 left-4 z-50 bg-slate-900 text-white text-xs py-2.5 px-4 rounded-xl shadow-lg border border-slate-700 animate-bounce flex items-center gap-1.5";
-            toast.innerHTML = `<i class="fa-solid fa-bell text-brand-400"></i> ${text}`;
+            toast.innerHTML = `<i class="fa-solid fa-star text-amber-400"></i> ${text}`;
             document.body.appendChild(toast);
             setTimeout(() => { toast.remove(); }, 4000);
         }
+    </script>
 
-        // STUDENT EXAMINATION INIT
+    <script>
+        // STUDENT QUEST INITIATOR
         function startExam(e) {
             e.preventDefault();
 
@@ -933,11 +1249,11 @@
             const absen = document.getElementById('input-absen').value.trim();
 
             if (!nama || !kelas || !absen) {
-                showModal("Lengkapi Data", "Silakan lengkapi seluruh formulir identitas.", "warning", "Oke", "Batal", null, null);
+                showModal("Lengkapi Identitas", "Silakan lengkapi seluruh formulir identitas petualangan.", "warning", "Oke", "Batal", null, null);
                 return;
             }
 
-            // Duplication check to enforce TKA validity
+            // Duplication check to enforce single submission TKA rules
             const submissions = JSON.parse(localStorage.getItem('tka_literasi_submissions') || '[]');
             const duplicate = submissions.some(sub => 
                 sub.nama.toLowerCase() === nama.toLowerCase() && 
@@ -947,8 +1263,8 @@
 
             if (duplicate) {
                 showModal(
-                    "Anda Sudah Mengerjakan!", 
-                    "Sistem mencatat identitas Anda telah menuntaskan ujian. Satu siswa hanya diperbolehkan mengirim satu kali untuk menjaga validitas PPDB.", 
+                    "Identitas Sudah Terpakai", 
+                    "Sistem mencatat identitas Anda telah menyelesaikan misi petualangan ini. Satu siswa hanya diperbolehkan mengirim satu kali.", 
                     "danger", 
                     "Ganti Identitas", 
                     "Kembali", 
@@ -974,7 +1290,7 @@
                 answersSaved = parsed.answers || {};
                 doubtfulSaved = parsed.doubtful || {};
                 examTimeLeftInSeconds = parsed.timeLeft || examTimeLeftInSeconds;
-                showToast("Berhasil memulihkan progres ujian Anda!");
+                showToast("Melanjutkan petualangan yang terputus!");
             }
 
             // Build student UI profiles
@@ -988,7 +1304,7 @@
             startCountdown();
         }
 
-        // EXAMINATION COUNTDOWN CONTROLLER
+        // GLOBAL COUNTDOWN TIMER
         function startCountdown() {
             if (examTimerInterval) clearInterval(examTimerInterval);
             const display = document.getElementById('exam-timer');
@@ -1007,7 +1323,7 @@
                     display.innerText = 
                         `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-                    // AutoSave draft backup to prevent refresh data losses
+                    // AutoSave draft backup to prevent data loss
                     if (examTimeLeftInSeconds % 10 === 0 && activeStudent) {
                         localStorage.setItem(`lite_autosave_${activeStudent.nama}_${activeStudent.kelas}_${activeStudent.absen}`, JSON.stringify({
                             answers: answersSaved,
@@ -1019,16 +1335,11 @@
             }, 1000);
         }
 
-        // RENDER INDICATOR GRID (CBT NAVIGATORS)
+        // MAP GRID NODE GENERATOR (CIRCLES GAME MAP)
         function renderGridIndicators() {
             const container = document.getElementById('student-grid-indicators');
-            const inlineNavigator = document.getElementById('inline-navigator');
-            
             if (container) {
                 container.innerHTML = "";
-            }
-            if (inlineNavigator) {
-                inlineNavigator.innerHTML = "";
             }
 
             questions.forEach((q, idx) => {
@@ -1036,19 +1347,17 @@
                 const isDoubtful = doubtfulSaved[q.nomor] === true;
                 const isActive = idx === currentQuestionIndex;
 
-                // Main Nav Box
-                let btnClass = "w-11 h-11 text-xs font-bold rounded-2xl transition-all duration-150 flex items-center justify-center border ";
+                // Level Node styling
+                let btnClass = "w-10 h-10 text-xs font-bold rounded-full transition-all duration-150 flex items-center justify-center border-2 shadow-inner ";
                 
-                if (isDoubtful) {
-                    btnClass += "bg-amber-500 text-white border-amber-400 shadow-md shadow-amber-500/10 hover:bg-amber-600";
-                } else if (isAnswered) {
-                    btnClass += "bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-600/10 hover:bg-emerald-700";
-                } else {
-                    btnClass += "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200";
-                }
-
                 if (isActive) {
-                    btnClass += " ring-4 ring-brand-500/30 border-brand-600 scale-105 font-black";
+                    btnClass += "bg-blue-100 text-brand-800 border-brand-500 ring-4 ring-brand-500/50 scale-105 font-black";
+                } else if (isDoubtful) {
+                    btnClass += "bg-amber-500 text-white border-amber-400 hover:bg-amber-600";
+                } else if (isAnswered) {
+                    btnClass += "bg-emerald-700 text-white border-emerald-600 hover:bg-emerald-800";
+                } else {
+                    btnClass += "bg-slate-200 text-slate-500 border-slate-300 hover:bg-slate-300";
                 }
 
                 const btn = document.createElement('button');
@@ -1058,27 +1367,92 @@
                 if (container) {
                     container.appendChild(btn);
                 }
-
-                // Small Inline Circle Dot Indicator (Mobile Friendly)
-                if (inlineNavigator) {
-                    let dotClass = "w-2.5 h-2.5 rounded-full transition-all ";
-                    if (isActive) {
-                        dotClass += "bg-brand-600 w-4";
-                    } else if (isDoubtful) {
-                        dotClass += "bg-amber-500";
-                    } else if (isAnswered) {
-                        dotClass += "bg-emerald-500";
-                    } else {
-                        dotClass += "bg-slate-300";
-                    }
-                    const dot = document.createElement('span');
-                    dot.className = dotClass;
-                    inlineNavigator.appendChild(dot);
-                }
             });
+
+            // UPDATE PROGRESS BAR
+            updateProgress();
         }
 
-        // DISPLAY MAIN QUESTION & ASSIGNED TEXT STIMULUS (ANBK STYLE)
+        // MILITARY PROGRESS TRACKER & MILESTONES
+        function updateProgress() {
+            const total = questions.length;
+            if (total === 0) return;
+            
+            let answeredCount = 0;
+            questions.forEach(q => {
+                if (answersSaved[q.nomor] !== undefined && answersSaved[q.nomor] !== "") {
+                    answeredCount++;
+                }
+            });
+
+            const percent = Math.round((answeredCount / total) * 100);
+            const progressBar = document.getElementById('quest-progress-bar');
+            const progressText = document.getElementById('percent-quest-progress');
+            const progressLabel = document.getElementById('label-quest-progress');
+
+            progressBar.style.width = `${percent}%`;
+            progressText.innerText = `${percent}%`;
+            progressLabel.innerText = `Misi ${answeredCount} / ${total}`;
+
+            // Update Dynamic Tier badges cosmetically based on percentage
+            const badgeIcon = document.getElementById('display-badge-icon');
+            const badgeText = document.getElementById('display-badge-text');
+            if (percent < 30) {
+                badgeIcon.innerText = "⭐";
+                badgeText.innerText = "Explorer";
+            } else if (percent < 80) {
+                badgeIcon.innerText = "🏆";
+                badgeText.innerText = "Challenger";
+            } else {
+                badgeIcon.innerText = "👑";
+                badgeText.innerText = "Master";
+            }
+        }
+
+        // POP MILESTONE MOTIVATIONS
+        function checkQuestMilestone(answeredCount) {
+            const total = questions.length;
+            const ratio = answeredCount / total;
+
+            let trigger = false;
+            let title = "Luar Biasa!";
+            let desc = `Kamu menyelesaikan ${answeredCount} tantangan.`;
+            let emoji = "🎉";
+
+            if (ratio === 0.25 || answeredCount === 10) {
+                trigger = true;
+                title = "Awal yang Bagus!";
+                emoji = "🚀";
+            } else if (ratio === 0.50 || answeredCount === 20) {
+                trigger = true;
+                title = "Hebat!";
+                emoji = "⭐";
+            } else if (ratio === 0.75 || answeredCount === 30) {
+                trigger = true;
+                title = "Hampir Selesai!";
+                emoji = "🔥";
+            } else if (ratio === 1.00) {
+                trigger = true;
+                title = "Misi Tercapai!";
+                emoji = "👑";
+            }
+
+            if (trigger) {
+                const pop = document.getElementById('motivation-popup');
+                document.getElementById('motivation-emoji').innerText = emoji;
+                document.getElementById('motivation-title').innerText = title;
+                document.getElementById('motivation-desc').innerText = desc;
+
+                pop.classList.remove('hidden');
+                setTimeout(() => {
+                    pop.classList.add('hidden');
+                }, 2000);
+            }
+        }
+    </script>
+
+    <script>
+        // DISPLAY QUEST PAGE
         function showQuestion(index) {
             if (index < 0 || index >= questions.length) return;
             currentQuestionIndex = index;
@@ -1086,14 +1460,15 @@
             const q = questions[index];
             document.getElementById('current-question-num').innerText = q.nomor;
             document.getElementById('total-questions-num').innerText = questions.length;
-            document.getElementById('display-mapel').innerText = q.mapel || "TKA";
+            document.getElementById('display-mapel').innerText = q.mapel || "Quest";
             document.getElementById('display-soal-text').innerText = q.soal;
+            document.getElementById('label-quest-title').innerText = `Level ${q.nomor} Challenge`;
 
-            // Render Split Screen Stimulus on the Left
+            // Left Stimulus Reading Content
             const stimulusContainer = document.getElementById('display-stimulus-container');
             stimulusContainer.innerHTML = "";
             
-            const paragraphs = q.stimulus || ["Tidak ada teks stimulus tambahan untuk nomor ini."];
+            const paragraphs = q.stimulus || ["Tidak ada dokumen pendukung tambahan untuk level ini."];
             paragraphs.forEach(pText => {
                 const p = document.createElement('p');
                 p.className = "mb-3 leading-relaxed hover:bg-slate-50 p-2 rounded-xl transition duration-150";
@@ -1102,10 +1477,10 @@
                 stimulusContainer.appendChild(p);
             });
 
-            // Set highlighter behavior if selected
+            // Enable highlighter handler if active
             setupTextHighlighterEvent();
 
-            // Render Answers Options Cards on the Right
+            // Right Options Choice
             const optionsContainer = document.getElementById('display-opsi-container');
             optionsContainer.innerHTML = "";
 
@@ -1127,10 +1502,10 @@
                 optionsContainer.appendChild(wrapper);
             });
 
-            // Update Doubtful (Ragu-Ragu) Toggle UI
+            // Update Doubtful Toggle UI state
             updateDoubtfulButtonUI();
 
-            // Handle button visibility
+            // Navigations visibility
             document.getElementById('btn-prev-question').style.visibility = (index === 0) ? 'hidden' : 'visible';
             
             if (index === questions.length - 1) {
@@ -1148,10 +1523,10 @@
             const q = questions[currentQuestionIndex];
             const btn = document.getElementById('btn-doubtful-toggle');
             if (doubtfulSaved[q.nomor] === true) {
-                btn.className = "px-4 py-2.5 text-xs font-bold rounded-xl flex items-center gap-1.5 transition border border-amber-500 bg-amber-500 text-white shadow-md shadow-amber-500/10";
+                btn.className = "game-btn px-4 py-2.5 text-xs font-bold rounded-xl flex items-center gap-1.5 transition border border-amber-500 bg-amber-500 text-white shadow-md shadow-amber-500/10";
                 btn.innerHTML = `<i class="fa-solid fa-square-check"></i> Ragu-Ragu`;
             } else {
-                btn.className = "px-4 py-2.5 text-xs font-bold rounded-xl flex items-center gap-1.5 transition border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100";
+                btn.className = "game-btn px-4 py-2.5 text-xs font-bold rounded-xl flex items-center gap-1.5 transition border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100";
                 btn.innerHTML = `<i class="fa-regular fa-square"></i> Ragu-Ragu`;
             }
         }
@@ -1159,20 +1534,41 @@
         function toggleDoubtful() {
             const q = questions[currentQuestionIndex];
             doubtfulSaved[q.nomor] = !doubtfulSaved[q.nomor];
+            GameAudio.playClick();
             updateDoubtfulButtonUI();
             renderGridIndicators();
         }
 
+        // TRIGGER SHORT MICRO-LOADING OVERLAY TRANSITION
         function goToQuestion(index) {
-            showQuestion(index);
+            const loader = document.getElementById('mission-loader');
+            loader.classList.remove('hidden');
+            GameAudio.playSlide();
+
+            setTimeout(() => {
+                showQuestion(index);
+                loader.classList.add('hidden');
+            }, 350);
         }
 
         function registerAnswer(qNum, letter) {
+            const wasAnswered = answersSaved[qNum] !== undefined && answersSaved[qNum] !== "";
             answersSaved[qNum] = letter;
+            GameAudio.playClick();
             renderGridIndicators();
+
+            if (!wasAnswered) {
+                let currentCount = 0;
+                questions.forEach(q => {
+                    if (answersSaved[q.nomor] !== undefined && answersSaved[q.nomor] !== "") {
+                        currentCount++;
+                    }
+                });
+                checkQuestMilestone(currentCount);
+            }
         }
 
-        // CONFIRMATION DIALOG BEFORE SUBMISSION
+        // CONFIRM END OF TKA QUEST ADVENTURE
         function confirmEndExam() {
             let answeredCount = 0;
             let doubtfulCount = 0;
@@ -1186,10 +1582,10 @@
             });
 
             const unanswered = questions.length - answeredCount;
-            let msg = `Anda telah menjawab ${answeredCount} dari ${questions.length} butir soal.`;
+            let msg = `Anda telah menjawab ${answeredCount} dari ${questions.length} butir level tantangan.`;
             
             if (doubtfulCount > 0) {
-                msg += ` Masih terdapat ${doubtfulCount} soal dengan status Ragu-Ragu. Silakan matikan tanda Ragu-Ragu bila Anda sudah merasa yakin.`;
+                msg += ` Masih terdapat ${doubtfulCount} level dengan status Ragu-Ragu. Silakan matikan tanda Ragu-Ragu bila Anda sudah merasa yakin.`;
                 showModal(
                     "Masih Ada Ragu-Ragu!", 
                     msg, 
@@ -1200,9 +1596,9 @@
                     null
                 );
             } else if (unanswered > 0) {
-                msg += ` Masih terdapat ${unanswered} soal yang terlewat! Apakah Anda yakin ingin menyelesaikan ujian?`;
+                msg += ` Masih terdapat ${unanswered} level tantangan yang terlewat! Apakah Anda yakin ingin menyelesaikan ujian?`;
                 showModal(
-                    "Soal Belum Lengkap!", 
+                    "Tantangan Belum Lengkap!", 
                     msg, 
                     "danger", 
                     "Kirim Sekarang", 
@@ -1211,9 +1607,9 @@
                     null
                 );
             } else {
-                msg += " Apakah Anda yakin ingin mengakhiri dan mengirim jawaban?";
+                msg += " Apakah Anda yakin ingin mengakhiri petualangan dan mengirim jawaban?";
                 showModal(
-                    "Ujian Selesai?", 
+                    "Misi Selesai?", 
                     msg, 
                     "success", 
                     "Ya, Kirim", 
@@ -1227,7 +1623,7 @@
         function forceEndExam() {
             showModal(
                 "Waktu Selesai!", 
-                "Batas waktu Anda telah habis. Lembar jawab Anda dikirim otomatis.", 
+                "Batas waktu petualangan Anda telah habis. Lembar jawab Anda dikirim otomatis.", 
                 "danger", 
                 "Lihat Hasil", 
                 "Tutup", 
@@ -1235,9 +1631,11 @@
                 () => executeFinalSubmit(true)
             );
         }
+    </script>
 
-        // MAIN TRANSMISSION LOGIC (CALCULATE BENAR-SALAH AND TRANSMIT TO LOCAL STORAGE)
-        function executeFinalSubmit(isForced = false) {
+    <script>
+        // DATA POST TO SPREADSHEETS & PERSIST RESETS
+        async function executeFinalSubmit(isForced = false) {
             if (examTimerInterval) clearInterval(examTimerInterval);
 
             let correctCount = 0;
@@ -1261,7 +1659,7 @@
             const formatEnd = `${String(endT.getHours()).padStart(2, '0')}:${String(endT.getMinutes()).padStart(2, '0')}`;
             const dateStr = endT.toISOString().split('T')[0];
 
-            // Build Payload
+            // Build payload
             const submission = {
                 nama: activeStudent.nama,
                 kelas: activeStudent.kelas,
@@ -1276,26 +1674,84 @@
                 jawabanSiswa: answersSaved
             };
 
-            // Save to Local Data Storage
+            // Post to Sheets
+            try {
+                // Formatting payload keys to match Sheets expectations dynamically
+                const spreadData = {
+                    "Nama": activeStudent.nama,
+                    "Kelas": activeStudent.kelas,
+                    "Nomor Absen": parseInt(activeStudent.absen),
+                    "Tanggal": dateStr,
+                    "Jam Mulai": examStartTimeStr,
+                    "Jam Selesai": formatEnd,
+                    "Durasi": elapsedSecStr,
+                    "Jumlah Benar": correctCount,
+                    "Jumlah Salah": incorrectCount,
+                    "Skor": parseFloat(score.toFixed(1))
+                };
+                questions.forEach(q => {
+                    spreadData[`Jawaban Nomor ${q.nomor}`] = answersSaved[q.nomor] || "-";
+                });
+
+                await fetch(CONFIG.API_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    body: JSON.stringify(spreadData)
+                });
+            } catch (err) {
+                console.error("Sheets connectivity failure, fallback locally:", err);
+            }
+
+            // Sync with local backups
             const submissions = JSON.parse(localStorage.getItem('tka_literasi_submissions') || '[]');
             submissions.push(submission);
             localStorage.setItem('tka_literasi_submissions', JSON.stringify(submissions));
 
-            // Remove crash recovers
+            // Reset autosave drafts
             localStorage.removeItem(`lite_autosave_${activeStudent.nama}_${activeStudent.kelas}_${activeStudent.absen}`);
 
-            // Display Results
+            // Update UI results
             document.getElementById('res-student-name').innerText = activeStudent.nama;
             document.getElementById('res-student-class').innerText = `${activeStudent.kelas} / Absen ${activeStudent.absen}`;
             document.getElementById('res-total-correct').innerText = correctCount;
             document.getElementById('res-total-incorrect').innerText = incorrectCount;
             document.getElementById('res-final-score').innerText = score.toFixed(1);
 
+            triggerConfetti();
+            GameAudio.playVictory();
             switchView('student-results');
             activeStudent = null;
         }
 
-        // TEACHER AUTH GATES
+        // PROCEDURAL HTML/SVG CONFETTI GENERATOR
+        function triggerConfetti() {
+            const colors = ['#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#e11d48', '#8b5cf6'];
+            const container = document.body;
+
+            for (let i = 0; i < 75; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'confetti-particle';
+                
+                const size = Math.random() * 8 + 6;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size * (Math.random() * 0.5 + 0.8)}px`;
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.animationDelay = `${Math.random() * 1.5}s`;
+                particle.style.animationDuration = `${Math.random() * 2 + 2}s`;
+                
+                container.appendChild(particle);
+
+                // Auto remove
+                setTimeout(() => {
+                    particle.remove();
+                }, 4000);
+            }
+        }
+    </script>
+
+    <script>
+        // PORTAL GURU LOGIC
         function openTeacherLogin() {
             switchView('teacher-login');
             document.getElementById('input-teacher-pwd').value = "";
@@ -1305,7 +1761,7 @@
         function verifyTeacherLogin(e) {
             e.preventDefault();
             const pass = document.getElementById('input-teacher-pwd').value;
-            if (pass === "adminTKA2026") {
+            if (pass === CONFIG.TEACHER_PASSWORD) {
                 switchView('teacher-dashboard');
                 switchTeacherTab('tab-peserta');
             } else {
@@ -1314,6 +1770,7 @@
         }
 
         function switchTeacherTab(tabId) {
+            GameAudio.playClick();
             const tabs = ['tab-peserta', 'tab-butir', 'tab-analisis', 'tab-matriks', 'tab-soal-editor'];
             tabs.forEach(t => {
                 document.getElementById(`subview-${t}`).classList.add('hidden');
@@ -1352,7 +1809,7 @@
             }
         }
 
-        // GURU TAB 1: RENDER PARTICIPANTS DETAILS
+        // TAB 1: RENDER PARTICIPANTS TABLE
         function renderTeacherPesertaTable() {
             const submissions = JSON.parse(localStorage.getItem('tka_literasi_submissions') || '[]');
             const tbody = document.getElementById('tbody-peserta-rows');
@@ -1409,7 +1866,7 @@
             });
         }
 
-        // GURU TAB 2: RENDER REKAP JAWABAN PER NOMOR SOAL
+        // TAB 2: DETAILED REKAP PER NOMOR
         function renderRekapButirCards() {
             const submissions = JSON.parse(localStorage.getItem('tka_literasi_submissions') || '[]');
             const container = document.getElementById('rekap-cards-container');
@@ -1470,13 +1927,13 @@
                                 <span>D : ${d} siswa</span>
                                 ${q.jawaban === 'D' ? '<span class="text-[10px] font-bold">✔ Kunci</span>' : ''}
                             </div>
-                            ${empty > 0 ? `<div class="text-[9px] text-vibrant-rose italic">Terlewat: ${empty} siswa</div>` : ''}
+                            ${empty > 0 ? `<div class="text-[9px] text-vibrant-rose italic font-semibold">Kosong: ${empty} siswa</div>` : ''}
                         </div>
                     </div>
 
                     <div class="pt-2.5 border-t border-slate-100 grid grid-cols-2 gap-2 text-center text-[10px]">
                         <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl py-1.5">
-                            <span class="block text-[8px] text-emerald-600 font-extrabold uppercase tracking-wide">Benar</span>
+                            <span class="block text-[8px] text-vibrant-emerald font-extrabold uppercase tracking-wide">Benar</span>
                             <span class="font-extrabold text-emerald-800 text-xs">${correctCount} (${percentCorrect}%)</span>
                         </div>
                         <div class="bg-rose-50/50 border border-rose-100 rounded-xl py-1.5">
@@ -1489,7 +1946,7 @@
             });
         }
 
-        // GURU TAB 3: DIFFICULTY SUMMARY & BARCHART RENDER
+        // TAB 3: DIFFICULTY SUMMARY WITH CHART.JS
         function renderDifficultyAnalysis() {
             const submissions = JSON.parse(localStorage.getItem('tka_literasi_submissions') || '[]');
             const tbody = document.getElementById('tbody-analisis-rows');
@@ -1524,11 +1981,11 @@
                     diffText = "Sangat Sulit";
                     diffColor = "bg-rose-50 text-rose-800 border border-rose-200";
                 } else if (pCorrect < 60) {
-                    diffText = "Sedang / Cukup Sulit";
+                    diffText = "Sedang";
                     diffColor = "bg-amber-50 text-amber-800 border border-amber-200";
                 } else if (pCorrect < 85) {
                     diffText = "Mudah";
-                    diffColor = "bg-indigo-50 text-indigo-800 border border-indigo-200";
+                    diffColor = "bg-brand-50 text-brand-800 border border-brand-200";
                 }
 
                 statsList.push({
@@ -1579,13 +2036,13 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Jumlah Siswa Benar',
+                            label: 'Siswa Benar',
                             data: dataCorrect,
                             backgroundColor: '#10b981',
                             borderRadius: 6
                         },
                         {
-                            label: 'Jumlah Siswa Salah',
+                            label: 'Siswa Salah',
                             data: dataIncorrect,
                             backgroundColor: '#f43f5e',
                             borderRadius: 6
@@ -1608,7 +2065,7 @@
             });
         }
 
-        // GURU TAB 4: MATRIKS REKAP JAWABAN SISWA
+        // TAB 4: PLAYER ANSWER MATRIX WITH MATCH CHECK (✔)
         function renderAnswerMatrix() {
             const submissions = JSON.parse(localStorage.getItem('tka_literasi_submissions') || '[]');
             const thead = document.getElementById('thead-matriks');
@@ -1673,7 +2130,7 @@
             });
         }
 
-        // GURU TAB 5: DATABASE EDIT VIEW
+        // TAB 5: QUEST DATABASE MANAGEMENT
         function renderSoalEditorList() {
             const container = document.getElementById('editor-soal-list');
             container.innerHTML = "";
@@ -1707,7 +2164,7 @@
 
         function clearEditorForm() {
             document.getElementById('soal-edit-index').value = "";
-            document.getElementById('editor-form-title').innerText = "Tambah Soal Baru";
+            document.getElementById('editor-form-title').innerText = "Tambah Level Soal";
             document.getElementById('edit-soal-nomor').value = questions.length + 1;
             document.getElementById('edit-soal-mapel').value = "";
             document.getElementById('edit-soal-stimulus').value = "";
@@ -1722,7 +2179,7 @@
         function editSoalClick(idx) {
             const q = questions[idx];
             document.getElementById('soal-edit-index').value = idx;
-            document.getElementById('editor-form-title').innerText = "Edit Soal Nomor " + q.nomor;
+            document.getElementById('editor-form-title').innerText = "Edit Level " + q.nomor;
             document.getElementById('edit-soal-nomor').value = q.nomor;
             document.getElementById('edit-soal-mapel').value = q.mapel || "Literasi";
             document.getElementById('edit-soal-stimulus').value = q.stimulus ? q.stimulus.join('\n\n') : "";
@@ -1752,7 +2209,6 @@
             const valD = document.getElementById('edit-soal-opsiD').value.trim();
             const jawaban = document.getElementById('edit-soal-jawaban').value;
 
-            // Split raw stimulus paragraph text via breakline double spaces
             const stimulusArray = rawStimulus.split(/\n\s*\n/).map(p => p.trim()).filter(p => p !== "");
 
             const structuredOpsi = [
@@ -1775,7 +2231,7 @@
             questions.sort((a, b) => a.nomor - b.nomor);
 
             localStorage.setItem('tka_literasi_questions', JSON.stringify(questions));
-            showModal("Soal Tersimpan", "Perubahan butir soal tersimpan sukses ke database lokal.", "success", "Oke", "Tutup", null, null);
+            showModal("Soal Tersimpan", "Perubahan butir tingkat level tersimpan sukses ke database.", "success", "Oke", "Tutup", null, null);
             
             clearEditorForm();
             renderSoalEditorList();
@@ -1783,8 +2239,8 @@
 
         function deleteSoalClick(idx) {
             showModal(
-                "Hapus Soal?", 
-                `Apakah Anda yakin ingin menghapus Soal Nomor ${questions[idx].nomor} ini dari database?`, 
+                "Hapus Level?", 
+                `Apakah Anda yakin ingin menghapus level ${questions[idx].nomor} ini dari database?`, 
                 "danger", 
                 "Hapus Permanen", 
                 "Batal", 
@@ -1792,7 +2248,7 @@
                     questions.splice(idx, 1);
                     localStorage.setItem('tka_literasi_questions', JSON.stringify(questions));
                     renderSoalEditorList();
-                    showToast("Soal berhasil terhapus!");
+                    showToast("Level berhasil terhapus!");
                 }, 
                 null
             );
@@ -1801,7 +2257,7 @@
         function resetQuestionsToDefault() {
             showModal(
                 "Reset Database Soal?", 
-                "Tindakan ini akan memulihkan butir soal standar bawaan program.", 
+                "Tindakan ini akan memulihkan butir level standar bawaan program.", 
                 "warning", 
                 "Kembalikan Standar", 
                 "Batal", 
@@ -1809,7 +2265,7 @@
                     questions = [...DEFAULT_QUESTIONS];
                     localStorage.setItem('tka_literasi_questions', JSON.stringify(questions));
                     renderSoalEditorList();
-                    showToast("Soal telah di-reset ke standar.");
+                    showToast("Misi quest telah di-reset ke standar.");
                 }, 
                 null
             );
@@ -1817,7 +2273,7 @@
 
         function clearAllData() {
             showModal(
-                "Reset Semua Hasil Ujian?", 
+                "Reset Semua Hasil?", 
                 "Langkah ini menghapus permanen seluruh riwayat hasil peserta ujian siswa dari dashboard lokal Anda.", 
                 "danger", 
                 "Hapus Semua", 
@@ -1828,7 +2284,7 @@
                     renderRekapButirCards();
                     renderDifficultyAnalysis();
                     renderAnswerMatrix();
-                    showToast("Semua riwayat hasil ujian telah dibersihkan.");
+                    showToast("Semua riwayat hasil petualangan dibersihkan.");
                 }, 
                 null
             );
